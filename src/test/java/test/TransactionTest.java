@@ -25,6 +25,11 @@ public class TransactionTest extends BaseTest{
         checkoutPage.inputContactOrder();
         checkoutPage.inputDeliveryOrder();
         checkoutPage.inputPayment();
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
 
 
     }

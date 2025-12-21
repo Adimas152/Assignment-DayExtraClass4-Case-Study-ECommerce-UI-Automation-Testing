@@ -3,6 +3,8 @@ package com.myshopify.pages;
 import com.myshopify.core.BasePage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -77,6 +79,8 @@ public class CheckoutPage extends BasePage {
 
     public void inputDeliveryOrder(){
         log.info("Input Delivery Order");
+        emailContact.sendKeys(Keys.chord(Keys.COMMAND, "a"));
+        emailContact.sendKeys(Keys.BACK_SPACE);
         emailContact.sendKeys("adimas@gmail.com");
         dropdownDeliveryCountry.click();
         selectDeliveryCountryOption.click();
@@ -92,12 +96,85 @@ public class CheckoutPage extends BasePage {
         phoneNumber.sendKeys("087772332033");
     }
 
-    public void inputPayment(){
-        log.info("Input Payment Order");
-        fieldCardNumber.sendKeys("5265183747589712");
-        fieldCExpiryCard.sendKeys("12/30");
-        fieldSecurityCode.sendKeys("136");
-        fieldNameCard.sendKeys("Daniel Peterson");
+
+    // IFRAME payment (Shopify biasanya pakai pattern "card-fields-*")
+    private final By iframeCardNumber = By.cssSelector("iframe[name^='card-fields-number']");
+    private final By iframeCardName   = By.cssSelector("iframe[name^='card-fields-name']");
+    private final By iframeExpiry     = By.cssSelector("iframe[name^='card-fields-expiry']");
+    private final By iframeCvv        = By.cssSelector("iframe[name^='card-fields-verification_value']");
+
+    // INPUT di dalam iframe (biasanya name-nya konsisten)
+    private final By inputCardNumber = By.cssSelector("input[name='number']");
+    private final By inputCardName   = By.cssSelector("input[name='name']");
+    private final By inputExpiry     = By.cssSelector("input[name='expiry']");
+    private final By inputCvv        = By.cssSelector("input[name='verification_value']");
+
+    // tombol Pay now (di luar iframe)
+    private final By payNowButton = By.cssSelector("button[type='submit']");
+
+    private void typeInIframe(By iframeLocator, By inputLocator, String value) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+        // tunggu iframe muncul
+        WebElement iframe = wait.until(ExpectedConditions.presenceOfElementLocated(iframeLocator));
+
+        // pindah ke iframe
+        driver.switchTo().frame(iframe);
+
+        // tunggu input bisa dipakai
+        WebElement input = wait.until(ExpectedConditions.elementToBeClickable(inputLocator));
+        input.click();
+        input.clear();
+        input.sendKeys(value);
+
+        // balik ke halaman utama
+        driver.switchTo().defaultContent();
     }
+
+    public void inputPayment() {
+        log.info("Input payment");
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+
+        // pastikan sudah sampai section payment (kadang load agak lama)
+        wait.until(ExpectedConditions.urlContains("/checkouts/"));
+
+        // isi semua field card via iframe
+        typeInIframe(iframeCardNumber, inputCardNumber, "5265183747589712");
+//        typeInIframe(iframeExpiry,     inputExpiry,     "1230");
+
+        // ===== EXPIRY FIELD (iframe) =====
+        By iframeExpiry = By.cssSelector("iframe[id^='card-fields-expiry']");
+        wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(iframeExpiry));
+
+        By expiryInput = By.cssSelector("input[name='expiry']");
+        WebElement expiry = wait.until(ExpectedConditions.elementToBeClickable(expiryInput));
+
+        expiry.click();
+
+        // clear (beberapa field ga bisa clear biasa, jadi pakai Ctrl/Cmd+A)
+        expiry.sendKeys(Keys.chord(Keys.COMMAND, "a")); // Mac
+        expiry.sendKeys(Keys.BACK_SPACE);
+
+        // coba format yang paling umum di Shopify
+        expiry.sendKeys("12");
+        expiry.sendKeys("27");
+
+        driver.switchTo().defaultContent();
+
+        typeInIframe(iframeCvv,        inputCvv,        "136");
+        typeInIframe(iframeCardName,   inputCardName,   "Daniel Peterson");
+
+        // optional: klik Pay now kalau memang dibutuhkan
+         wait.until(ExpectedConditions.elementToBeClickable(payNowButton)).click();
+    }
+
+
+//    public void inputPayment(){
+//        log.info("Input Payment Order");
+//        fieldCardNumber.sendKeys("5265183747589712");
+//        fieldCExpiryCard.sendKeys("12/30");
+//        fieldSecurityCode.sendKeys("136");
+//        fieldNameCard.sendKeys("Daniel Peterson");
+//    }
 
 }
