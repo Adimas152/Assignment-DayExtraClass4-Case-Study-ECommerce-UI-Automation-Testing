@@ -31,7 +31,5 @@ public class TransactionTest extends BaseTest{
             Thread.currentThread().interrupt();
         }
 
-
     }
-
 }
