@@ -19,9 +19,6 @@ public class CartPage extends BasePage {
         super(driver);
     }
 
-//    @FindBy(xpath = "//h1[normalize-space()='My Cart']")
-//    private WebElement titleCart;
-
     private By titleCart = By.xpath("//h1[normalize-space()='My Cart']");
 
     @FindBy(xpath = "//input[@id='checkout']\n")
@@ -32,10 +29,10 @@ public class CartPage extends BasePage {
 
         wait.until(ExpectedConditions.visibilityOfElementLocated(titleCart));
         wait.until(ExpectedConditions.elementToBeClickable(checkoutButton)).click();
-
     }
 
     public void openCartPage(String baseUrl) {
+        if (baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
         driver.get(baseUrl + "/cart");
     }
 }

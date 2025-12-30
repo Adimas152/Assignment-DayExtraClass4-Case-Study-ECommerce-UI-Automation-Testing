@@ -24,4 +24,24 @@ public class IframeHelper {
 
         driver.switchTo().defaultContent();
     }
+
+    public static void typeExpiryInIframe(WebDriver driver, WebDriverWait wait,
+                                          By iframeLocator, By inputLocator, String mmYY) {
+
+        WebElement frame = wait.until(ExpectedConditions.presenceOfElementLocated(iframeLocator));
+        driver.switchTo().frame(frame);
+
+        WebElement input = wait.until(ExpectedConditions.elementToBeClickable(inputLocator));
+        input.click();
+
+        // clear untuk masked input
+        try { input.clear(); } catch (Exception ignored) {}
+        for (int i = 0; i < 10; i++) input.sendKeys(Keys.BACK_SPACE);
+
+        // ketik per karakter supaya mask kebaca benar
+        for (char c : mmYY.toCharArray()) {
+            input.sendKeys(String.valueOf(c));
+        }
+        driver.switchTo().defaultContent();
+    }
 }

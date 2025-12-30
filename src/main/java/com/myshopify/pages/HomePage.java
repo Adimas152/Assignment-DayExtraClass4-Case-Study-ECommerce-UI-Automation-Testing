@@ -38,21 +38,9 @@ public class HomePage extends BasePage {
     @FindBy(xpath = "//a[@class='checkout']")
     private WebElement checkOutButton;
 
-//    public void addToCart() {
-//        log.info("Add to cart");
-//        sectionCatalog.click();
-//        firstAvailableProduct.click();
-//        addToCartButton.click();
-//
-//        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
-//        wait.until(ExpectedConditions.visibilityOf(verifyCart));   // nunggu cart count tampil
-//
-//        checkOutButton.click();
-//    }
-
     private final By cartCount = By.id("cart-target-desktop"); // cukup outer span
 
-    public void addToCart() {
+    public int addToCart() {
         log.info("Add to cart");
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
@@ -67,9 +55,10 @@ public class HomePage extends BasePage {
             return !t.isEmpty() && Integer.parseInt(t) > 0;
         });
 
-        // kalau tombol checkout kamu ada di drawer, biasanya harus buka cart dulu
-        iconCart.click();
-        wait.until(ExpectedConditions.elementToBeClickable(checkOutButton)).click();
+        // ambil jumlah cart (buat assertion di test)
+        String digits = driver.findElement(cartCount).getText().replaceAll("[^0-9]", "");
+        return digits.isEmpty() ? 0 : Integer.parseInt(digits);
+
     }
 }
 

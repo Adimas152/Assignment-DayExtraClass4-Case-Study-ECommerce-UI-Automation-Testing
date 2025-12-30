@@ -27,20 +27,22 @@ public class CheckoutPaymentPage {
     private final By inputExpiry = By.cssSelector("input#expiry, input[name='expiry']");
     private final By inputCvc    = By.cssSelector("input#verification_value, input[name='verification_value']");
 
-    // ===== ERROR dari inspect kamu =====
+    // ===== ERROR  =====
     private final By paymentErrorBanner = By.id("PaymentErrorBanner"); // "Your payment details couldn't be verified..."
     private final By cardNumberError    = By.id("error-for-number");   // "Enter a valid card number"
 
     // action
-    private final By payNowButton = By.xpath("//button[normalize-space()='Pay now']");
+    private final By payNowButton = By.xpath("//button[contains(normalize-space(),'Pay now')]");
 
     public void inputCardNumber(String value) {
         IframeHelper.typeInIframe(driver, wait, iframeCardNumber, inputNumber, value);
     }
 
-    public void inputExpiry(String value) {
-        IframeHelper.typeInIframe(driver, wait, iframeExpiry, inputExpiry, value);
+    public void inputExpiry(String mmYY) {
+        // ketik khusus expiry (masked)
+        IframeHelper.typeExpiryInIframe(driver, wait, iframeExpiry, inputExpiry, mmYY);
     }
+
 
     public void inputCvc(String value) {
         IframeHelper.typeInIframe(driver, wait, iframeCvc, inputCvc, value);
