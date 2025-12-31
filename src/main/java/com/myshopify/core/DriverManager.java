@@ -27,15 +27,17 @@ public class DriverManager {
 
                 String githubActions = System.getenv("GITHUB_ACTIONS");
                 boolean isGithubActions = "true".equalsIgnoreCase(githubActions);
-                // bisa diaktifkan dari lokal menggunakai: -Dheadless=true
                 boolean isHeadless = Boolean.parseBoolean(System.getProperty("headless", "false")) || isGithubActions;
+
                 if (isHeadless) {
                     options.addArguments("--headless=new");
-                    options.addArguments("--disable-gpu");
-                    options.addArguments("--window-size=1920,1080");
                     options.addArguments("--no-sandbox");
                     options.addArguments("--disable-dev-shm-usage");
+                    options.addArguments("--disable-gpu");
+                    options.addArguments("--window-size=1920,1080");
+                    options.addArguments("--remote-allow-origins=*");
                 }
+
 
                 webDriver = new ChromeDriver(options);
             }
