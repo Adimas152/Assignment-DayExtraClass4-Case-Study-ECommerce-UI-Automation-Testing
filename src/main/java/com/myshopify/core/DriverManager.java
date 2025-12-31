@@ -26,13 +26,17 @@ public class DriverManager {
                 options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
 
                 String githubActions = System.getenv("GITHUB_ACTIONS");
-                if (githubActions != null && githubActions.equals("true")) {
-                    options.addArguments("--headless");
+                boolean isGithubActions = "true".equalsIgnoreCase(githubActions);
+                // bisa diaktifkan dari lokal menggunakai: -Dheadless=true
+                boolean isHeadless = Boolean.parseBoolean(System.getProperty("headless", "false")) || isGithubActions;
+                if (isHeadless) {
+                    options.addArguments("--headless=new");
                     options.addArguments("--disable-gpu");
                     options.addArguments("--window-size=1920,1080");
                     options.addArguments("--no-sandbox");
                     options.addArguments("--disable-dev-shm-usage");
                 }
+
                 webDriver = new ChromeDriver(options);
             }
             case "firefox" -> {
