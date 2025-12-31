@@ -28,7 +28,6 @@ public class DriverManager {
                 String githubActions = System.getenv("GITHUB_ACTIONS");
                 boolean isGithubActions = "true".equalsIgnoreCase(githubActions);
                 boolean isHeadless = Boolean.parseBoolean(System.getProperty("headless", "false")) || isGithubActions;
-
                 if (isHeadless) {
                     options.addArguments("--headless=new");
                     options.addArguments("--no-sandbox");
